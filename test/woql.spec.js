@@ -486,6 +486,7 @@ describe('woql queries', () => {
         }
       })
   });
+
   it('check deep arithmetic var', () => {
     let v = Vars("a", "res");
       const wq = WOQL.and(
@@ -496,4 +497,63 @@ describe('woql queries', () => {
     expect(wq).to.deep.eql(
       {"@type":"And","and":[{"@type":"Eval","expression":{"@type":"Times","left":{"@type":"ArithmeticValue","data":{"@type":"xsd:decimal","@value":3}},"right":{"@type":"ArithmeticValue","data":{"@type":"xsd:decimal","@value":4}}},"result":{"@type":"ArithmeticValue","variable":"a"}},{"@type":"Eval","expression":{"@type":"Times","left":{"@type":"ArithmeticValue","variable":"a"},"right":{"@type":"ArithmeticValue","data":{"@type":"xsd:decimal","@value":3}}},"result":{"@type":"ArithmeticValue","variable":"res"}}]})
   });
+
+  it('check arithmetic var in and', () => {
+    let v = Vars("result1", "result2");
+    const wq = WOQL.and(
+      WOQL.eval(WOQL.times(2,3), v.result1),
+      WOQL.eval(WOQL.times(v.result1,3), v.result2)
+    ).json();
+    expect(wq).to.deep.eql({
+      "@type": "And",
+      "and": [
+        {
+          "@type": "Eval",
+          "expression": {
+            "@type": "Times",
+            "left": {
+              "@type": "ArithmeticValue",
+              "data": {
+                "@type": "xsd:decimal",
+                "@value": 2
+              }
+            },
+            "right": {
+              "@type": "ArithmeticValue",
+              "data": {
+                "@type": "xsd:decimal",
+                "@value": 3
+              }
+            }
+          },
+          "result": {
+            "@type": "ArithmeticValue",
+            "variable": "result1"
+          }
+        },
+        {
+          "@type": "Eval",
+          "expression": {
+            "@type": "Times",
+            "left": {
+              "@type": "ArithmeticValue",
+              "variable": "result1"
+            },
+            "right": {
+              "@type": "ArithmeticValue",
+              "data": {
+                "@type": "xsd:decimal",
+                "@value": 3
+              }
+            }
+          },
+          "result": {
+            "@type": "ArithmeticValue",
+            "variable": "result2"
+          }
+        }
+      ]
+    });
+  });
+
 });
